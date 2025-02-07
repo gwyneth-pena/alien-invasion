@@ -11,9 +11,13 @@ class Ship:
         self.rect = self.image.get_rect()
         self.rect.y -= 1000
 
-        self.rect.midbottom = self.screen_rect.midbottom
         self.moving_right = False
         self.moving_left = False
+
+        self.center_ship()
+
+    def center_ship(self):
+        self.rect.midbottom = self.screen_rect.midbottom
         self.x = float(self.rect.x)
 
     def blitme(self):

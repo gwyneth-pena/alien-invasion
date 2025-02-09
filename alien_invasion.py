@@ -102,6 +102,7 @@ class AlienInvasion:
             for aliens in collisions.values():
                 self.game_stats.score += self.settings.alien_points * len(aliens)
             self.sb.prep_score()
+            self.sb.check_high_score()
         
     def _update_aliens(self):
         self._check_fleet_edges()
@@ -150,6 +151,7 @@ class AlienInvasion:
             self.ship.center_ship()
             self.game_stats.score = 0
             self.sb.prep_score()
+            self.sb.check_high_score()
             sleep(0.5)
         else:
             self.game_active = False
@@ -173,6 +175,7 @@ class AlienInvasion:
         if not self.game_active:
             self.game_stats.score = 0
             self.sb.prep_score()
+            self.sb.check_high_score()
             pygame.mouse.set_visible(True)
             self.play_button.draw_button()
         pygame.display.flip()

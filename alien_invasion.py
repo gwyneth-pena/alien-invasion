@@ -1,5 +1,6 @@
 import sys
 from time import sleep
+from button import Button
 import pygame
 from alien import Alien
 from bullet import Bullet
@@ -20,7 +21,8 @@ class AlienInvasion:
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
-        self.game_active = True
+        self.game_active = False
+        self.play_button = Button(self, "Play")
         pygame.display.set_caption("Alien Invasion")
 
     def run_game(self):
@@ -41,6 +43,20 @@ class AlienInvasion:
                 self._check_keydowns(event)
             if event.type == pygame.KEYUP:
                 self._check_keyups(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
+
+    def _check_play_button(self, mouse_pos):
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if not self.game_active and button_clicked:
+            self.game_active = True
+            pygame.mouse.set_visible(False)
+            self.game_stats.reset_stats()
+            self.bullets.empty()
+            self.aliens.empty()
+            self.create_fleet()
+            self.ship.center_ship()
 
     def _check_keydowns(self, event):
         if event.type == pygame.KEYDOWN:
@@ -144,6 +160,9 @@ class AlienInvasion:
             bullet.draw_bullet()
         self.aliens.draw(self.screen)
         self.ship.blitme()
+        if not self.game_active:
+            pygame.mouse.set_visible(True)
+            self.play_button.draw_button()
         pygame.display.flip()
 
 if __name__ == "__main__":

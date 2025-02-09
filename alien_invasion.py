@@ -45,8 +45,9 @@ class AlienInvasion:
             if event.type == pygame.KEYUP:
                 self._check_keyups(event)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                self._check_play_button(mouse_pos)
+                if event.button == 1:
+                    mouse_pos = pygame.mouse.get_pos()
+                    self._check_play_button(mouse_pos)
 
     def _check_play_button(self, mouse_pos):
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
@@ -59,6 +60,7 @@ class AlienInvasion:
             self.aliens.empty()
             self.create_fleet()
             self.ship.center_ship()
+            self.sb.prep_ships()
 
     def _check_keydowns(self, event):
         if event.type == pygame.KEYDOWN:
@@ -144,7 +146,7 @@ class AlienInvasion:
         self.settings.fleet_direction *= -1
 
     def _decrease_ship(self):
-        if self.game_stats.ships_left > 0:
+        if self.game_stats.ships_left > 1:
             self.game_stats.ships_left -= 1
             self.game_active = True
             self.bullets.empty()
@@ -156,14 +158,18 @@ class AlienInvasion:
             self.sb.check_high_score()
             self.game_stats.level = 1
             self.sb.prep_level()
+            self.sb.prep_ships()
             sleep(0.5)
         else:
+            self.game_stats.ships_left = 0
+            self.sb.prep_ships()
             self.game_active = False
 
     def _check_aliens_hit_bottom(self):
         for alien in self.aliens.sprites():
             if alien.rect.bottom >= self.settings.screen_height:
                 self._decrease_ship()
+                break
     
     def _check_aliens_hit_ship(self):
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
@@ -184,6 +190,7 @@ class AlienInvasion:
             self.sb.check_high_score()
             pygame.mouse.set_visible(True)
             self.play_button.draw_button()
+            self.sb.prep_ships()
         pygame.display.flip()
 
 if __name__ == "__main__":

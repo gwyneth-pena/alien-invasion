@@ -5,6 +5,7 @@ import pygame
 from alien import Alien
 from bullet import Bullet
 from game_stats import GameStats
+from scoreboard import Scoreboard
 from settings import Settings
 from ship import Ship
 
@@ -17,7 +18,7 @@ class AlienInvasion:
         self.bg_color = self.settings.bg_color
 
         self.game_stats = GameStats(self)
-
+        self.sb = Scoreboard(self)
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -51,6 +52,7 @@ class AlienInvasion:
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if not self.game_active and button_clicked:
             self.game_active = True
+            self.settings.initialize_dynamic_settings()
             pygame.mouse.set_visible(False)
             self.game_stats.reset_stats()
             self.bullets.empty()
@@ -90,11 +92,16 @@ class AlienInvasion:
         if not self.aliens:
             self.bullets.empty()
             self.create_fleet()
+            self.settings.increase_speed()
 
         self._check_bullet_and_alien_collisions()
 
     def _check_bullet_and_alien_collisions(self):
         collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        if collisions:
+            for aliens in collisions.values():
+                self.game_stats.score += self.settings.alien_points * len(aliens)
+            self.sb.prep_score()
         
     def _update_aliens(self):
         self._check_fleet_edges()
@@ -141,6 +148,8 @@ class AlienInvasion:
             self.aliens.empty()
             self.create_fleet()
             self.ship.center_ship()
+            self.game_stats.score = 0
+            self.sb.prep_score()
             sleep(0.5)
         else:
             self.game_active = False
@@ -159,8 +168,11 @@ class AlienInvasion:
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         self.aliens.draw(self.screen)
+        self.sb.draw_score()
         self.ship.blitme()
         if not self.game_active:
+            self.game_stats.score = 0
+            self.sb.prep_score()
             pygame.mouse.set_visible(True)
             self.play_button.draw_button()
         pygame.display.flip()
